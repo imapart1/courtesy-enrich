@@ -1,6 +1,6 @@
 # Service Research — Contact Enrichment Providers
 
-Pricing verified against official pages **2026-08-12** (exceptions flagged ⚠️). Volume model: ~800 person-lookups upfront (263 companies × ~3 roles), then ~150–450/mo.
+Pricing verified against official pages **2026-08-12** (exceptions flagged ⚠️). Volume model: ~800 person-lookups upfront (a few hundred companies × ~3 roles), then ~150–450/mo.
 
 ## TL;DR — recommended stack
 
@@ -57,7 +57,7 @@ Verified at [exa.ai/pricing](https://exa.ai/pricing) + docs:
 - **Search $7/1k requests** (contents of top-10 results now included); deep variants $12–15/1k; contents $1/1k pages; Answer $5/1k.
 - **Agent API** (replaced the deprecated `/research` endpoint, Apr 2026): $0.012–$1.00/request by effort or $0.10/ACU; adders: search $0.005, **email enrichment $0.02/email**, phone $0.07.
 - **Free credits: $20 signup + $10/mo** — our whole-backlog search usage (~$8) fits inside.
-- **Websets** (managed enrichment lists): ⚠️ billing page 429'd — search-sourced: Starter $49/mo = 8,000 credits, 100 results/webset (263 companies ⇒ 3 websets), 2 credits/enrichment row. Managed one-shot for the backlog ≈ **$49**. Docs confirm enrichments can return contact info/emails.
+- **Websets** (managed enrichment lists): ⚠️ billing page 429'd — search-sourced: Starter $49/mo = 8,000 credits, 100 results/webset (a few hundred companies ⇒ a handful of websets), 2 credits/enrichment row. Managed one-shot for a backlog ≈ **$49**. Docs confirm enrichments can return contact info/emails.
 - Rate limits: search 10 QPS. SDKs: `exa-py`, `exa-js`. Structured outputs supported.
 - **Role in our pipeline:** long-tail resolver after free methods (Stage 2 step 5), and Websets as a no-build managed alternative if we'd rather not run M2 ourselves.
 

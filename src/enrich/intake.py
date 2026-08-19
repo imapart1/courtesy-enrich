@@ -12,7 +12,7 @@ from .models import Company, is_generic_local, valid_email
 from .patterns import learn_domain_shape
 from .store import Store
 
-# Contact Research tab column indexes (see docs/data-audit.md)
+# Contact-research CSV column indexes (see docs/data-audit.md)
 COL_CARD, COL_PFIRST, COL_PLAST, COL_DEFENDANT, COL_EMAIL, COL_DEMAND, COL_WEBSITE, \
     COL_NOTES, COL_STATUS, COL_COMPLETED, COL_TRELLO = range(11)
 

@@ -16,7 +16,7 @@ from .intake import import_sheet, load_sheet_csv, parse_freeform, read_freeform_
 from .models import Company
 from .store import Store
 
-app = typer.Typer(help="Courtesy-email contact enrichment pipeline.", no_args_is_help=True)
+app = typer.Typer(help="B2B executive contact enrichment pipeline.", no_args_is_help=True)
 console = Console()
 
 
@@ -65,7 +65,7 @@ def add(
 
 @app.command()
 def pull(
-    csvfile: Path = typer.Argument(..., help="Export of the Contact Research tab"),
+    csvfile: Path = typer.Argument(..., help="Contact-research CSV export (see examples/)"),
     learn_only: bool = typer.Option(False, help="Only learn patterns from completed rows; don't queue work"),
 ):
     """Import the sheet CSV: queue rows without emails, learn patterns from rows with them."""
@@ -128,6 +128,20 @@ def run(
     if not pending:
         console.print("Nothing pending. Use [bold]enrich add[/] or [bold]enrich pull[/].")
         raise typer.Exit()
+    if not free_only:
+        from .providers import REGISTRY
+
+        paid = []
+        for name, cls in sorted(REGISTRY.items()):
+            p = cls(ctx)
+            ok, _ = p.available()
+            if ok and not getattr(p, "is_free", False):
+                paid.append(name)
+        if paid:
+            console.print(
+                f"[yellow]Paid providers on:[/] {', '.join(paid)}. "
+                f"Budget cap ${ctx.budget.limit_usd:.2f}. Use --free-only to skip spend.\n"
+            )
     ctx.store.start_run(ctx.run_id, ctx.flags.__dict__)
     console.print(f"run [bold]{ctx.run_id}[/]: {len(pending)} companies, budget ${ctx.budget.limit_usd:.2f}\n")
 

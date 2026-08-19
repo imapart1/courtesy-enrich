@@ -97,7 +97,8 @@ def push_gsheet(store: Store, sheet_id: str, service_account_file: str, workshee
     with tempfile.NamedTemporaryFile(suffix=".csv", mode="w", delete=False) as tmp:
         tmp_path = Path(tmp.name)
     export_enriched_csv(store, tmp_path)
-    rows = list(csv.reader(open(tmp_path, encoding="utf-8")))
+    with tmp_path.open(encoding="utf-8") as f:
+        rows = list(csv.reader(f))
     gc = gspread.service_account(filename=service_account_file)
     sh = gc.open_by_key(sheet_id)
     try:

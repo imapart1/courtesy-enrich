@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 
 import httpx
 
+from . import __version__
 from .config import Settings
 from .store import Store
 
@@ -88,7 +89,12 @@ class Ctx:
             self.http = httpx.AsyncClient(
                 timeout=httpx.Timeout(30.0, connect=10.0),
                 follow_redirects=True,
-                headers={"User-Agent": "courtesy-enrich/0.1 (contact research; ops@schallertpc.com)"},
+                headers={
+                    "User-Agent": (
+                        f"courtesy-enrich/{__version__} "
+                        f"(contact research; {self.settings.contact_email})"
+                    )
+                },
             )
         return self
 

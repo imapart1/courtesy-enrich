@@ -6,9 +6,9 @@
 
 ## 1. Problem & Goal
 
-Schallert PC sends demand letters to defendant companies. When no timely response is received, the firm sends a **courtesy email** to executives at the defendant company. Today, finding those executives' emails is manual research (the "Contact Research" tab of the [Courtesy Email Spreadsheet](https://docs.google.com/spreadsheets/d/1mJG-_-mx6Ngf9BvtCfE19iqIKZk8ru1pEfw3tLY5Znc/)), done one company at a time.
+Legal and ops teams often need a **courtesy email** to executives at a company after a demand letter or similar outreach. Finding those executives' emails is usually manual research on a contact-research spreadsheet, done one company at a time.
 
-**Goal:** a pipeline that, for each defendant company, finds the **name, title, and company email** of:
+**Goal:** a pipeline that, for each company, finds the **name, title, and company email** of:
 
 | Priority | Role | Accepted titles (waterfall within role) |
 |---|---|---|
@@ -18,20 +18,20 @@ Schallert PC sends demand letters to defendant companies. When no timely respons
 | 4 | **CFO** *(sheet header includes it)* | CFO → VP Finance |
 | 5 | **Privacy** *(sheet header includes it)* | CPO/DPO/Privacy Officer → (fallback: `privacy@`) |
 
-When a person's email can't be found directly, the pipeline **detects the company's email naming convention** (e.g. `{first}@`, `{first}.{last}@`, `{f}{last}@`) and **constructs a guess**, then verifies deliverability. This mirrors the existing manual process — the 287 already-researched rows are pattern-guessed in exactly this way.
+When a person's email can't be found directly, the pipeline **detects the company's email naming convention** (e.g. `{first}@`, `{first}.{last}@`, `{f}{last}@`) and **constructs a guess**, then verifies deliverability. Already-researched rows in the input sheet are training data for those patterns.
 
-**Non-goals (v1):** sending emails (the MJS Launch tab / a human does that), Trello integration, revenue research beyond a basic size flag, non-US entities beyond best-effort.
+**Non-goals (v1):** sending emails (a human does that), card-system integration, revenue research beyond a basic size flag, non-US entities beyond best-effort.
 
 ## 2. Input Data (audited 2026-08-12 — see [docs/data-audit.md](docs/data-audit.md))
 
-- 550 defendant rows with website; unique key = **Trello card URL** (also unique: defendant name).
-- **287 rows already have emails** ("Ready to Send" 152 / "Pending Review" 135) — ~1,223 emails, 98% person-style. These are *training data*: they prove per-domain naming conventions and give pattern priors.
-- **263-row work queue**: 260 "Pending Review" with no emails + 3 "Emails Did Not Work" (bounce feedback).
+- One row per company with a website; unique key = **card URL** (also unique: company name).
+- Rows that already have emails are *training data*: they prove per-domain naming conventions and give pattern priors.
+- The work queue is rows with no emails, plus bounce-feedback rows ("Emails Did Not Work").
 - Recurring hazards the pipeline must handle:
-  - **Brand domain ≠ corporate email domain** (USRx → `axnygroup.com`; Pharmavite → `uqora.com`; Oxford Industries → `jackrogersusa.com`; Sightline → `armytimes.com`).
-  - **Parent companies / acquisitions** (notes: "owned by Juneshine", "Sonder acquired in July 2026 by UpN…").
+  - **Brand domain ≠ corporate email domain** (site on a brand, mailboxes on a parent or acquired entity).
+  - **Parent companies / acquisitions** recorded in notes.
   - **No corporate email domain at all** ("Gmail addresses only") and **catch-all domains**.
-  - Some notes flag **company size** ("Less than $10 Million") — worth surfacing automatically.
+  - Some notes flag **company size** — worth surfacing automatically.
 
 ## 3. Architecture
 
@@ -93,14 +93,14 @@ Per identified person, stop on first hit:
 - Guard rails: max 3 SMTP-era guesses per person, max ~8 emails per company (matches current sheet norms); never mark a catch-all guess as `verified`.
 
 ### Stage 5 — Write-back & review
-- Results go to a **new "Enriched" tab** (or new columns on Contact Research) — **never overwrite** manual data or formula columns. Keyed by Trello card URL.
+- Results go to a **new "Enriched" tab** (or new columns on the contact-research sheet) — **never overwrite** manual data or formula columns. Keyed by card URL.
 - Columns per company: `email_domain`, `pattern`, `pattern_confidence`, `catch_all`, `parent_company`, `size_flag`, then per role (`legal`,`ceo`,`coo`,`cfo`,`privacy`): `name`, `title`, `email`, `tier`, `source_url`; plus a **paste-ready combined Email cell** matching today's comma-separated format, `enriched_at`, `run_cost`.
 - Status flow: pipeline sets `Pending Review` → human approves → `Ready to Send` (unchanged from today).
 - **Bounce loop:** rows marked "Emails Did Not Work" are re-queued automatically; bounced addresses and their pattern go on a per-domain blocklist before the retry.
 
 ## 4. Google Sheet integration
 
-The sheet is private (owner `matthew@taulersmith.com`). Two supported modes:
+The sheet is private. Two supported modes:
 
 1. **CSV mode (M0, zero setup):** operator exports the tab → `data/input/`, pipeline writes `data/output/enriched-<date>.csv` for import/paste-back.
 2. **Sheets API mode (M2):** Google Cloud **service account** + `gspread`; the sheet is shared (editor) with the service-account address; pipeline reads Contact Research and writes the Enriched tab directly. Requires a one-time setup by whoever administers the sheet.
@@ -112,7 +112,9 @@ Python 3.12+ managed with `uv`; `httpx` (+ `tenacity` retries) for all API calls
 ```
 courtesy-email-project/
 ├── SPEC.md / README.md / docs/
-├── data/input/ · data/output/ · data/cache.sqlite   (gitignored except inputs)
+├── data/input/ · data/output/ · data/cache.sqlite   (all of data/ is gitignored — PII)
+├── examples/              # synthetic inputs for a fresh clone
+├── tests/fixtures/        # committed sample CSV for intake tests
 ├── config.yaml            # role priorities, provider order, budgets, thresholds
 ├── .env.example           # all API keys, sheet ID
 ├── src/enrich/
@@ -169,14 +171,14 @@ send_tiers_auto: [A, B, D]   # C requires human approval
 | Verify | **MillionVerifier** 10k pack (never expires) | ~$39 one-time |
 | Optional LLM researcher | Claude web search ($10/1k searches) | ~$13–40 for backlog |
 
-- **Backlog (263 companies, ~800 person-lookups): ≈ $90–130 one-time.**
+- **A few hundred companies (~800 person-lookups): ≈ $90–130 one-time.**
 - **Steady state (~50–150 companies/mo): $0–49/mo** (free tiers may suffice at the low end; Hunter Starter month-to-month when needed).
-- **Free-only mode: $0** — expect strong CEO coverage, weak GC/COO coverage, and ~6+ months to clear the backlog on free-tier rate limits. Supported via `--free-only` flag but not recommended as the plan.
+- **Free-only mode: $0** — expect stronger CEO coverage than GC/COO, and slow progress on free-tier rate limits. Supported via `--free-only`.
 - Alternatives considered and deferred: Apollo Basic $49/mo (strong all-rounder; add if Hunter+Anymail hit-rate disappoints), Exa Websets managed run (~$49), Clay ($185/mo — orchestration overhead we're building ourselves), RocketReach/Lusha/ContactOut (weaker fit or sales-gated APIs), ZoomInfo (~$15k/yr — skip), Snov.io (no free API), PDL ($98/mo Pro — emails obfuscated on free; pay-more-for-less here).
 
 ## 7. Quality: the back-test gate
 
-Before spending on the backlog, the pipeline must prove itself against the **287 rows with known emails**:
+Before spending on a large paid run, the pipeline must prove itself against **rows with known emails**:
 
 1. Hold out the known emails; run identify+email stages on a 50-row sample.
 2. **Acceptance:** ≥70% of rows reproduce at least 3 known addresses (or their exact pattern); 0 addresses invented on domains where the pattern disagrees with the known one.
@@ -196,7 +198,7 @@ Before spending on the backlog, the pipeline must prove itself against the **287
 |---|---|---|
 | **M0** | Repo + models + SQLite + CSV in/out + `enrich pull/plan/report` (no providers) | small |
 | **M1** | Free stack: domain resolution, sheet-pattern learning, site scrape, SERP identify, permutation + Reoon/MillionVerifier verify, **back-test harness + gate** | medium |
-| **M2** | Paid waterfall: Hunter, Anymail, Apollo adapters, budget guard, Sheets API write-back; **clear the 263-row backlog** | medium |
+| **M2** | Paid waterfall: Hunter, Anymail, Apollo adapters, budget guard, Sheets API write-back; **clear the work queue** | medium |
 | **M3** | Exa long-tail + Claude researcher, bounce feedback loop, per-domain blocklists | small |
 | **M4** | Polish: `enrich report` dashboards, scheduled weekly run, operator docs | small |
 

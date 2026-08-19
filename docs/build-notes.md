@@ -15,7 +15,7 @@ Working Python package (`src/enrich/`), **187 tests passing**, ruff-clean. Runs 
 
 ## What works
 
-- **Free stack end-to-end:** company-site scrape (JSON-LD + prose founder pass), Google News RSS, SEC EDGAR, MX/entity resolution, pattern learning from the 1,222 known sheet emails, permutation guessing, tiered output, CSV export. A `--free-only` run over real companies costs **$0** and correctly pulls e.g. Sonder's CEO/CFO from EDGAR.
+- **Free stack end-to-end:** company-site scrape (JSON-LD + prose founder pass), Google News RSS, SEC EDGAR, MX/entity resolution, pattern learning from known sheet emails, permutation guessing, tiered output, CSV export. A `--free-only` run costs **$0** and can pull public-company officers from EDGAR (e.g. Sonder's CEO/CFO).
 - **Paid waterfall wired and tested** (Hunter, Apollo, Anymail, Exa, MillionVerifier, Reoon, Serper) behind keys, with a hard per-run budget cap, in-flight budget *reservations* (concurrency-safe), and per-call cost metering (Exa/Hunter/Anymail/Apollo rewrite the ledger to real cost on fresh calls).
 - **Safety rails:** catch-all guesses never tier above B; bounced addresses blocklist themselves and re-queue the company; secrets never logged or cached; all of `data/` gitignored (PII); LinkedIn never scraped directly (SERP snippets only); SEC UA header + robots.txt honored.
 

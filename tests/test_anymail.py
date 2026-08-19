@@ -320,7 +320,7 @@ async def test_domain_pattern_not_found(ctx, provider):
 @respx.mock
 async def test_doctor(ctx, provider):
     route = respx.get(ACCOUNT_URL).mock(return_value=Response(200, json={
-        "credits_left": 1850, "email": "ops@schallertpc.com"}))
+        "credits_left": 1850, "email": "contact@example.com"}))
     async with ctx:
         out = await provider.doctor()
     assert out == "ok - 1,850 credits left"

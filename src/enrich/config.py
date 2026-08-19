@@ -104,3 +104,8 @@ class Settings:
     @property
     def llm_cfg(self) -> dict[str, Any]:
         return self.cfg.get("llm_researcher", {})
+
+    @property
+    def contact_email(self) -> str:
+        """Identifying contact for outbound HTTP (SEC User-Agent, site fetches)."""
+        return self.key("CONTACT_EMAIL") or "contact@example.com"

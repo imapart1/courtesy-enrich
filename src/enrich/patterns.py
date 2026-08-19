@@ -25,7 +25,7 @@ SHAPE_TO_PATTERNS: dict[str, list[str]] = {
     "f.last": ["{f}.{last}", "{first}.{l}"],
     "first_last": ["{first}_{last}"],
     "single_short": ["{first}", "{f}{last}", "{f}{l}"],
-    # measured on the sheet's 1,171 known locals: {first}@ dominates even among long tokens
+    # measured on a large first-name-heavy sample: {first}@ dominates even among long tokens
     "single_long": ["{f}{last}", "{first}", "{first}{last}", "{first}{l}"],
     "unknown": ["{first}", "{first}.{last}", "{f}{last}", "{first}{last}"],
 }

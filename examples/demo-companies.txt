@@ -1,0 +1,4 @@
+# One company per line: name, domain, URL, or "Name | domain"
+Acme Corp | acme.com
+Mozilla | mozilla.org
+Sonder Inc | sonder.com

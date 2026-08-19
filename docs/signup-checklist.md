@@ -1,6 +1,6 @@
 # Signup Checklist
 
-**Verified 2026-08-13.** Use **`ops@schallertpc.com`** for every account (Apollo's free tier *requires* a work-email domain — a Gmail signup silently loses search/enrichment). Store keys in the firm password manager; paste them into `.env` locally (never commit, never send them to me in chat — the pipeline reads them from disk).
+**Verified 2026-08-13.** Register every account with a **work-email domain** (Apollo's free tier silently drops search/enrichment on Gmail signups). Store keys in a password manager; paste them into `.env` locally (never commit, never paste keys into chat — the pipeline reads them from disk).
 
 I can't create accounts or enter payment details for you — every row below is yours to click through. Once an account exists I can wire up the MCP connection and the API adapter.
 
@@ -19,7 +19,7 @@ I can't create accounts or enter payment details for you — every row below is 
 
 ### Apollo setup — three gotchas that matter
 
-1. **Register with `ops@schallertpc.com`.** Apollo docs: free accounts registered with a *personal* email address can't use people/company search or enrichment. A work-email domain lifts that. This is the single most important step on the page.
+1. **Register with a work-email domain.** Apollo docs: free accounts registered with a *personal* email address can't use people/company search or enrichment. A work-email domain lifts that. This is the single most important step on the page.
 2. **Be an admin on the workspace** — required to create an API key (Settings → Integrations → API).
 3. **Turn off model training in whatever AI client connects to the MCP** — Apollo's terms prohibit AI model training through Apollo MCP integrations.
 
@@ -27,13 +27,13 @@ Also check `app.apollo.io/#/settings/credits/current` after signup: new accounts
 
 ---
 
-## Phase 2 — Buy only when we start the 263-company backlog run (~$90–130)
+## Phase 2 — Buy only when a paid backlog run starts (~$90–130)
 
 Do **not** buy these yet. They come after the back-test gate passes on free tiers (SPEC §7), so we spend against a measured hit-rate rather than a guess.
 
 | # | Service | Purchase | Cost | Trigger |
 |---|---|---|---|---|
-| 7 | **Hunter.io Starter** | Upgrade for one month, 2,000 credits | **$49** (month-to-month; $34/mo if we later go annual) | Backlog run begins — 50 free credits/mo can't cover 263 domains |
+| 7 | **Hunter.io Starter** | Upgrade for one month, 2,000 credits | **$49** (month-to-month; $34/mo if we later go annual) | Paid backlog run begins — 50 free credits/mo can't cover hundreds of domains |
 | 8 | **MillionVerifier** | 10,000-credit pack | **~$39 one-time**, never expires (≈2 years of supply) | Same time as #7 |
 | 9 | **Anymail Finder** | $49/mo tier, cancel after | **$49**, only in heavy months | Only if Hunter's hit-rate leaves >20% of companies unresolved. **Card required even for their trial.** |
 
@@ -81,4 +81,4 @@ Then run `/mcp` in an interactive Claude Code session to complete OAuth. Same pa
 ## After signup, send me nothing — do this instead
 
 1. Copy `.env.example` → `.env` and paste each key in.
-2. Tell me which accounts are live, and I'll start M1 (free stack + back-test against the 287 known rows — costs $0 to run).
+2. Confirm which accounts are live, then run the free stack + back-test against known rows (`enrich backtest --free-only` — costs $0).

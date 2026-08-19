@@ -95,7 +95,7 @@ async def test_company_info_match(ctx):
     assert params["company"] == "Oxford Industries"
     assert params["type"] == "10-K"
     assert params["output"] == "atom"
-    assert routes["browse"].calls[0].request.headers["user-agent"] == "courtesy-enrich ops@schallertpc.com"
+    assert routes["browse"].calls[0].request.headers["user-agent"] == f"courtesy-enrich {ctx.settings.contact_email}"
 
 
 @respx.mock

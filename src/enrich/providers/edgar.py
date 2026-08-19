@@ -37,9 +37,10 @@ from .. import net
 from ..models import ROLE_TITLES, Company, title_matches_role
 from .base import CompanyInfo, PersonHit, ProviderBase, ProviderError, register
 
-# SEC requires a User-Agent identifying the caller (app + contact) on every request.
-EDGAR_UA = "courtesy-enrich ops@schallertpc.com"
-_HEADERS = {"User-Agent": EDGAR_UA}
+
+def _sec_headers(email: str) -> dict[str, str]:
+    """SEC requires a User-Agent identifying the caller (app + contact)."""
+    return {"User-Agent": f"courtesy-enrich {email}"}
 
 BROWSE_URL = "https://www.sec.gov/cgi-bin/browse-edgar"
 FTS_URL = "https://efts.sec.gov/LATEST/search-index"
@@ -195,7 +196,10 @@ class Edgar(ProviderBase):
         }
 
         async def fetch():
-            resp = await net.fetch(self.ctx.http, "GET", BROWSE_URL, headers=dict(_HEADERS), params=params)
+            resp = await net.fetch(
+                self.ctx.http, "GET", BROWSE_URL,
+                headers=_sec_headers(self.ctx.settings.contact_email), params=params,
+            )
             return {"filers": _parse_atom_filers(resp.content)}
 
         data = await self.cached_json(
@@ -224,7 +228,7 @@ class Edgar(ProviderBase):
         params = {"q": f'"{phrase}"', "ciks": cik, "forms": "8-K"}
 
         async def fetch():
-            data = await net.fetch_json(self.ctx.http, "GET", FTS_URL, headers=dict(_HEADERS), params=params)
+            data = await net.fetch_json(self.ctx.http, "GET", FTS_URL, headers=_sec_headers(self.ctx.settings.contact_email), params=params)
             out = []
             for h in ((data.get("hits") or {}).get("hits") or [])[:10]:
                 src = h.get("_source") or {}
@@ -245,7 +249,9 @@ class Edgar(ProviderBase):
         url = f"{ARCHIVES_BASE}/{int(cik)}/{adsh.replace('-', '')}/{fname}"
 
         async def fetch():
-            resp = await net.fetch(self.ctx.http, "GET", url, headers=dict(_HEADERS))
+            resp = await net.fetch(
+                self.ctx.http, "GET", url, headers=_sec_headers(self.ctx.settings.contact_email),
+            )
             text = BeautifulSoup(resp.text[:1_500_000], "html.parser").get_text(" ")
             return {"url": url, "text": re.sub(r"\s+", " ", text)[:MAX_DOC_TEXT]}
 
@@ -293,7 +299,7 @@ class Edgar(ProviderBase):
         params = {"q": '"annual report"', "forms": "10-K"}
 
         async def fetch():
-            data = await net.fetch_json(self.ctx.http, "GET", FTS_URL, headers=dict(_HEADERS), params=params)
+            data = await net.fetch_json(self.ctx.http, "GET", FTS_URL, headers=_sec_headers(self.ctx.settings.contact_email), params=params)
             total = ((data.get("hits") or {}).get("total") or {}).get("value") or 0
             return {"total": int(total)}
 

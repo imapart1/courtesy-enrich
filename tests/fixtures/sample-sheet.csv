@@ -1,0 +1,5 @@
+Trello Card,Plaintiff First,Plaintiff Last,Defendant,Email,Demand Letter Date,Website,Notes,Status,Completed,Trello Status
+https://example.com/c/acme,Pat,Example,Acme Demo LLC,"jane@acme-demo.example, bob@acme-demo.example, sue@acme-demo.example, tom@acme-demo.example",2026-01-01,https://acme-demo.example,,Ready to Send,Yes,Open
+https://example.com/c/brand,Pat,Example,Brand Co LLC,"cfo@parentco.example, ceo@parentco.example",2026-01-02,https://brandco.example,email domain differs from website,Ready to Send,Yes,Open
+https://example.com/c/queue,Pat,Example,Queued Corp,,2026-01-15,https://queued.example,,Pending Review,,Open
+https://example.com/c/bounce,Pat,Example,Bounce Inc,,2026-01-10,https://bounce.example,"Emails Did Not Work: stale@bounce.example",Emails Did Not Work,,Open

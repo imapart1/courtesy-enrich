@@ -1,0 +1,4 @@
+Trello Card,Plaintiff First,Plaintiff Last,Defendant,Email,Demand Letter Date,Website,Notes,Status,Completed,Trello Status
+https://example.com/c/acme,Pat,Example,Acme Demo LLC,"jane.smith@acme-demo.example, bob.jones@acme-demo.example",2026-01-01,https://acme-demo.example,,Ready to Send,Yes,Open
+https://example.com/c/sonder,Pat,Example,Sonder Inc,,2026-01-15,https://sonder.com,,Pending Review,,Open
+https://example.com/c/mozilla,Pat,Example,Mozilla,,2026-01-15,https://mozilla.org,,Pending Review,,Open

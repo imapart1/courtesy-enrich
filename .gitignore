@@ -1,6 +1,7 @@
 # secrets
 .env
 service-account.json
+service-account*.json
 *.pem
 
 # local data & cache — all of data/ is PII (defendant emails, plaintiff names)
