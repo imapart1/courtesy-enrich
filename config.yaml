@@ -1,0 +1,30 @@
+# Waterfall order is config, not code. Providers missing an API key are skipped
+# automatically; --free-only additionally skips anything with per-call cost.
+budget:
+  per_run_usd: 10.00          # hard stop for paid API spend in a single run
+thresholds:
+  identity_confidence: 0.60   # min confidence to accept a PersonHit
+  pattern_proven: 0.60        # domain pattern confidence needed for tier B on catch-all
+  max_emails_per_company: 8   # matches current sheet norms
+  max_guesses_per_person: 3
+  people_per_role: 2          # keep the best N candidates per role, not just the first
+roles:                        # priority order; keys must match models.ROLES
+  - legal
+  - ceo
+  - coo
+  - cfo
+  - privacy
+generic_fallbacks:            # tier-D backstops when a role can't be filled
+  legal: ["legal", "privacy"]
+  privacy: ["privacy"]
+stages:
+  # apollo first: 0-credit structured search with exact titles; serp burns quota on snippets
+  identify: [sheet, sitescrape, apollo, serp, newsrss, anymail, exa, edgar, llm_researcher]
+  pattern:  [sheet, hunter]
+  email:    [sheet, hunter, anymail, apollo, permute]
+  verify:   [millionverifier, reoon, hunter]
+llm_researcher:
+  model: claude-opus-5
+  max_searches: 6
+  enabled_by_default: false   # opt in with --llm (it is the most expensive identify step)
+cache_ttl_days: 30

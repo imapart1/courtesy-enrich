@@ -1,0 +1,19 @@
+# secrets
+.env
+service-account.json
+*.pem
+
+# local data & cache — all of data/ is PII (defendant emails, plaintiff names)
+data/
+*.sqlite
+
+# python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+
+# os
+.DS_Store
